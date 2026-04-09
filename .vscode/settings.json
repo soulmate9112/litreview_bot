@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./src/regina_tg_bot/model"
+    ]
+}

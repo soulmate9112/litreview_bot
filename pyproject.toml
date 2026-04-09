@@ -1,0 +1,79 @@
+[project]
+<<<<<<< HEAD
+name = "litreview-bot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+=======
+name = "regina-tg-bot"
+version = "0.1.0"
+description = "Regina Telegram Bot"
+authors = [
+  { name = "Simon Gay", email = "simonb683@gmail.com" }
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3 :: Only",
+]
+requires-python = ">=3.11"
+dependencies = [
+  "pyTelegramBotAPI~=4.29.1",
+  "telebot-calendar==1.2",
+  "emoji~=2.14.1",
+  "pydantic",
+  "sqlalchemy",
+  "loguru",
+  "pandas",
+]
+
+[dependency-groups]
+dev = [
+  "pre-commit>=4.0.1",
+  "commitizen>=3.27.0",
+]
+
+[project.scripts]
+start-regina-tg-bot = "regina_tg_bot:app"
+
+[build-system]
+requires = ["uv_build>=0.8.17,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+  "I",    # isort
+  "E",    # pycodestyle
+  "W",    # pycodestyle
+  "F",    # pyflakes
+  "N",    # pep8-naming
+  "PL",   # pylint
+  "S",    # flake8-bandit
+  "Q",    # flake8-quotes
+  "B",    # flake8-bugbear
+  "SIM",  # flake8-simplify
+  "UP",   # pyupgrade
+]
+ignore = [
+  "PLC0414",  # useless-import-alias
+  "S101"  # asserts
+]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "pep440"
+version_provider = "uv"
+update_changelog_on_bump = false
+changelog_merge_prerelease = true
+major_version_zero = true
+>>>>>>> 284a922fbd392ccbf4657bd2484dd157ef797ee5
