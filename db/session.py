@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 import os
 
 DB_PATH = "/db/data"  # Fixed location in container
-EXPORT_PATH = "/db_export_data"  # Fixed location in container
+EXPORT_PATH = "/db/db_export_data"  # Fixed location in container
 
 server_URL = f"sqlite:///{DB_PATH}"
 server_export_path = EXPORT_PATH

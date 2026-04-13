@@ -60,7 +60,13 @@ from aiogram.types import Message
 
 from openalex_ids import OPENALEX_IDS
 from inverted_abstract_conversion import convert_inverted_abstract
-
+from orm.extracted_articlesORM import article_metadataORM
+from schema.extracted_articlesSchema import (
+    article_metadataSchema,
+    multiple_article_metadataSchema,
+)
+from crud.database_entry import get_article_metadata_repository
+from db.export_database_2csv import export_database
 
 load_dotenv()  # Load the environment variables
 
@@ -69,7 +75,6 @@ load_dotenv()  # Load the environment variables
 # bot = Bot(token = TOKEN)
 
 # dp = Dispatcher()
-
 
 # @dp.message(CommandStart())
 # async def command_start_handler(message: Message) -> None:
@@ -80,7 +85,6 @@ load_dotenv()  # Load the environment variables
 # @dp.sendmessagepublication_year>0
 
 extracted_articles = []
-article_metadata = {}
 
 
 async def main():
@@ -97,6 +101,8 @@ async def main():
                     results = await resp.json()
                     results = results["results"]
                     for item in results:
+                        article_metadata = {}
+
                         article_metadata["doi"] = item["doi"]
                         article_metadata["title"] = item["title"]
                         article_metadata["publication_year"] = item["publication_year"]
@@ -106,13 +112,27 @@ async def main():
                         for authorhip_obj in authorship_objs:
                             author_name = authorhip_obj["author"]["display_name"]
                             author_names.append(author_name)
-                        article_metadata["authors"] = " ".join(author_names)
-                        article_metadata["abstract"] = convert_inverted_abstract(
-                            item["abstract_inverted_index"]
-                        )
+                        article_metadata["authors"] = ", ".join(author_names)
+
+                        if item["abstract_inverted_index"]:
+                            article_metadata["abstract"] = convert_inverted_abstract(
+                                item["abstract_inverted_index"]
+                            )
+                        else:
+                            article_metadata["abstract"] = "There is no abstract here"
+
                         extracted_articles.append(
                             article_metadata
                         )  # extracted_articles contains dictionaries with the article metadata
+        article_repository = get_article_metadata_repository()
+        article_repository.create_multiple_entries(
+            multiple_article_metadataSchema(extracted_articles)
+        )
+
+        export_database(
+            export_path="/db/db_export_data",
+            new_entries=multiple_article_metadataSchema(extracted_articles),
+        )
 
 
 asyncio.run(main())
