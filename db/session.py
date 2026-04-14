@@ -7,8 +7,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FOLDER = os.path.join(BASE_DIR, "db/data")
 EXPORT_FOLDER = os.path.join(BASE_DIR, "db/db_export_data")
 
-# 3. АВТОМАТИЧЕСКОЕ СОЗДАНИЕ ПАПОК
-# SQLite не умеет создавать папки, только сам файл.
 os.makedirs(DB_FOLDER, exist_ok=True)
 os.makedirs(EXPORT_FOLDER, exist_ok=True)
 

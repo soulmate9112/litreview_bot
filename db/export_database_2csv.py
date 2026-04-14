@@ -26,14 +26,9 @@ def export_new_entries(
 ):
     table_name = model_class.__tablename__
     try:
-        # 1. Fetch only the existing DOIs from the database
-        # This is much faster than fetching whole objects
-
         existing_dois = session.execute(select(model_class.doi)).scalars().all()
         existing_dois = set(existing_dois)
 
-        # 2. Filter the source_data (Pydantic items)
-        # We only keep items where the DOI is NOT in the database set
         data_to_export = []
         for item in source_data.root:
             if item.doi not in existing_dois:
@@ -47,14 +42,12 @@ def export_new_entries(
 
                 data_to_export.append(row_dict)
 
-        # 3. If nothing is new, stop here
         if not data_to_export:
             print(
                 f"No new data to export for table {table_name}. All entries already exist in DB."
             )
             return
 
-        # 4. Create DataFrame and export
         df = pd.DataFrame(data_to_export)
 
         # Ensure directory exists
