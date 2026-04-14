@@ -5,10 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.decl_api import DeclarativeBase
 
-engine = create_engine(
-    "sqlite:///:memory:",
-)
-
 
 class Base(DeclarativeBase):
     pass
@@ -17,7 +13,7 @@ class Base(DeclarativeBase):
 class article_metadataORM(Base):
     __tablename__ = "article_metadata"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=False)
 
     doi: Mapped[str] = mapped_column(String(255), nullable=True)
     title: Mapped[str] = mapped_column(String(500), nullable=True)

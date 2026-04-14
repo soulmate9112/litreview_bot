@@ -9,13 +9,17 @@ from schema.extracted_articlesSchema import (
     multiple_article_metadataSchema,
     article_metadataSchema,
 )
-from db.session import get_session
+from db.session import get_session, EXPORT_FOLDER
 
 
-def export_database(export_path: str, new_entries: multiple_article_metadataSchema):
+def export_database(
+    url, export_path: str, new_entries: multiple_article_metadataSchema
+):
     # if not os.path.exists(server_url):
     #     raise FileNotFoundError(f"Server database is not found at the following path:{server_url}")
-    export_new_entries(get_session(), article_metadataORM, new_entries, export_path)
+    ENGINE = create_engine(url)
+    with Session(bind=ENGINE) as session:
+        export_new_entries(session, article_metadataORM, new_entries, export_path)
 
 
 def export_new_entries(

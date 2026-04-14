@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DB_FOLDER = os.path.join(BASE_DIR, "db/data")
-EXPORT_FOLDER = os.path.join(BASE_DIR, "db/db_export_data")
+DB_FOLDER = os.path.join(BASE_DIR, "data")
+EXPORT_FOLDER = os.path.join(BASE_DIR, "db_export_data")
 
 os.makedirs(DB_FOLDER, exist_ok=True)
 os.makedirs(EXPORT_FOLDER, exist_ok=True)
