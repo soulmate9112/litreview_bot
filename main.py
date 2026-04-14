@@ -50,7 +50,7 @@ import aiohttp
 import logging
 import sys
 from dotenv import load_dotenv
-from os import getenv
+import os
 
 from aiogram import Bot, Dispatcher, html
 from aiogram.client.default import DefaultBotProperties
@@ -67,6 +67,7 @@ from schema.extracted_articlesSchema import (
 )
 from crud.database_entry import get_article_metadata_repository
 from db.export_database_2csv import export_database
+from db.session import EXPORT_PATH
 
 load_dotenv()  # Load the environment variables
 
@@ -79,7 +80,7 @@ load_dotenv()  # Load the environment variables
 # @dp.message(CommandStart())
 # async def command_start_handler(message: Message) -> None:
 #     await message.answer(
-#         f"Hello. This is your litreview bot. I will send you a selection of the related articles on a daily basis"
+#         f"Hi,this is your litreview bot"
 #     )
 
 # @dp.sendmessagepublication_year>0
@@ -130,7 +131,7 @@ async def main():
         )
 
         export_database(
-            export_path="/db/db_export_data",
+            export_path="EXPORT_PATH",
             new_entries=multiple_article_metadataSchema(extracted_articles),
         )
 

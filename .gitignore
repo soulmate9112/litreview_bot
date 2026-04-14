@@ -9,9 +9,13 @@ wheels/
 # Virtual environments
 .venv
 
-# ORCIDs  
-ORCIDs.xlsx
+# Environment parameters
+.env
 
-# ORCIDs  
+# ORCIDs and openalex ids
+ORCIDs.xlsx
+openalex_ids.py
+orcids_list.py
+ 
 
 

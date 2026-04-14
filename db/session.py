@@ -1,27 +1,25 @@
-from sqlalchemy import Engine
-from sqlalchemy import create_engine
+import os
+from sqlalchemy import create_engine, Engine
 from sqlalchemy.orm import Session
 
-import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DB_PATH = "/db/data"  # Fixed location in container
-EXPORT_PATH = "/db/db_export_data"  # Fixed location in container
+DB_FOLDER = os.path.join(BASE_DIR, "db/data")
+EXPORT_FOLDER = os.path.join(BASE_DIR, "db/db_export_data")
+
+# 3. АВТОМАТИЧЕСКОЕ СОЗДАНИЕ ПАПОК
+# SQLite не умеет создавать папки, только сам файл.
+os.makedirs(DB_FOLDER, exist_ok=True)
+os.makedirs(EXPORT_FOLDER, exist_ok=True)
+
+DB_PATH = os.path.join(DB_FOLDER, "article_metadata.db")
+EXPORT_PATH = EXPORT_FOLDER  # Для использования в других функциях
 
 server_URL = f"sqlite:///{DB_PATH}"
 server_export_path = EXPORT_PATH
 
 ENGINE: Engine = create_engine(server_URL)
 
-os.makedirs(
-    "C:/Users/Simon/MAIN_WORK_FOLDER/coding/litreview_telegram_bot/litreview_bot/db/data",
-    exist_ok=True,
-)
-os.makedirs(
-    "C:/Users/Simon/MAIN_WORK_FOLDER/coding/litreview_telegram_bot/litreview_bot/db_export",
-    exist_ok=True,
-)
-
 
 def get_session() -> Session:
-    with Session(bind=ENGINE) as session:
-        return session
+    return Session(bind=ENGINE)
