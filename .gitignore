@@ -9,9 +9,11 @@ wheels/
 # Virtual environments
 .venv
 
-# ORCIDs  
-ORCIDs.xlsx
+# Environment parameters
+.env
 
 # ORCIDs  
+ORCIDs.xlsx
+ 
 
 
