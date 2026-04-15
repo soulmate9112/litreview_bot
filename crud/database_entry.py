@@ -9,7 +9,7 @@ from schema.extracted_articlesSchema import (
 )
 
 
-from typing import List
+from typing import List, Optional
 
 
 class Article_metadata_repository:
@@ -18,39 +18,93 @@ class Article_metadata_repository:
 
     def create_entry(
         self, article_metadata_source: article_metadataSchema
-    ) -> article_metadataSchema:
-        article_metadata_orm = article_metadataORM(
-            **article_metadata_source.model_dump()
-        )  # pyright: ignore [reportCallIssue]
+    ) -> Optional[article_metadataSchema]:
+        """Создает одну запись. Проверяет, нет ли уже записи с таким DOI."""
+
+        # Проверяем, существует ли запись с таким DOI
+        with self._session as session:
+            existing = session.execute(
+                select(article_metadataORM).where(
+                    article_metadataORM.doi == article_metadata_source.doi
+                )
+            ).first()
+
+            if existing:
+                print(
+                    f"Entry with DOI {article_metadata_source.doi} already exists. Skipping..."
+                )
+                return None
+
+        # Создаем новую запись (исключаем id, если он есть)
+        article_data = article_metadata_source.model_dump(exclude_none=True)
+        article_metadata_orm = article_metadataORM(**article_data)
+
         with self._session as session:
             session.add(article_metadata_orm)
             session.commit()
+            session.refresh(article_metadata_orm)
 
         return article_metadataSchema.model_validate(article_metadata_orm)
 
     def create_multiple_entries(
         self, article_metadata_list: multiple_article_metadataSchema
     ) -> multiple_article_metadataSchema:
+        """Создает несколько записей. Пропускает те, у которых DOI уже существуют."""
 
-        db_articles = [
-            article_metadataORM(**article.model_dump())
-            for article in article_metadata_list.root
-        ]
-
+        # Получаем все существующие DOI
         with self._session as session:
-            session.add_all(db_articles)
+            existing_dois = set(
+                session.execute(select(article_metadataORM.doi)).scalars().all()
+            )
+
+        # Фильтруем новые статьи
+        new_articles = []
+        for article in article_metadata_list.root:
+            if article.doi not in existing_dois:
+                article_data = article.model_dump(exclude_none=True)
+                new_articles.append(article_metadataORM(**article_data))
+
+        if not new_articles:
+            print("No new articles to insert")
+            return multiple_article_metadataSchema(root=[])
+
+        # Сохраняем новые статьи
+        with self._session as session:
+            session.add_all(new_articles)
             session.commit()
 
-        return multiple_article_metadataSchema.model_validate(db_articles)
+            # Обновляем объекты, чтобы получить сгенерированные id
+            for article in new_articles:
+                session.refresh(article)
 
-    def get_entry(self, id: int) -> article_metadataSchema | None:
+        # Конвертируем обратно в Pydantic
+        created_schemas = [
+            article_metadataSchema.model_validate(article) for article in new_articles
+        ]
+
+        return multiple_article_metadataSchema(root=created_schemas)
+
+    def get_entry(self, id: int) -> Optional[article_metadataSchema]:
+        """Получает одну запись по ID."""
         with self._session as session:
             article_metadata_orm = session.get(article_metadataORM, id)
 
             if article_metadata_orm is None:
                 return None
-            if isinstance(article_metadata_orm, article_metadataORM):
-                return article_metadataSchema.model_validate(article_metadata_orm)
+
+            return article_metadataSchema.model_validate(article_metadata_orm)
+
+    def get_multiple_entries(
+        self, skip: int = 0, limit: int = 10
+    ) -> List[article_metadataSchema]:
+        """Получает несколько записей с пагинацией."""
+        with self._session as session:
+            query = select(article_metadataORM).offset(skip).limit(limit)
+            results = session.execute(query).scalars().all()
+
+            return [
+                article_metadataSchema.model_validate(article) for article in results
+            ]
 
 
 def get_article_metadata_repository() -> Article_metadata_repository:

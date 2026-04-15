@@ -5,7 +5,6 @@ from typing import List
 class article_metadataSchema(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(from_attributes=True)
 
-    id: int
     doi: str | None = None
     title: str | None = None
     publication_year: int | None = None

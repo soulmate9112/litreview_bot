@@ -67,6 +67,9 @@ from schema.extracted_articlesSchema import (
 )
 from crud.database_entry import get_article_metadata_repository
 from db.export_database_2csv import export_database
+from orm.extracted_articlesORM import Base
+from db.session import ENGINE
+
 # from db.session import DB_PATH, EXPORT_PATH
 
 load_dotenv()  # Load the environment variables
@@ -101,11 +104,8 @@ async def main():
                 if resp.status == 200:
                     results = await resp.json()
                     results = results["results"]
-                    id = 0
                     for item in results:
                         article_metadata = {}
-                        id += 1
-                        article_metadata["id"] = id
 
                         article_metadata["doi"] = item["doi"]
                         article_metadata["title"] = item["title"]
@@ -125,26 +125,24 @@ async def main():
                         else:
                             article_metadata["abstract"] = "There is no abstract here"
 
-                        extracted_articles.append(
-                            article_metadata
-                        )  # extracted_articles contains dictionaries with the article metadata
-        sample_article = extracted_articles[0]
+                        extracted_articles.append(article_metadata)
+
+                    for article in extracted_articles:
+                        article = article_metadataSchema(**article)
+
+                        # extracted_articles contains dictionaries with the article metadata
+
+        Base.metadata.create_all(bind=ENGINE)
+
         article_repository = get_article_metadata_repository()
+        article_repository.create_multiple_entries(
+            multiple_article_metadataSchema(extracted_articles)
+        )
 
-        article_repository.create_entry(sample_article)
-
-
-# id=sample_article["id"],
-#             doi=sample_article["doi"],
-#             title=sample_article["title"],
-#             publication_year=sample_article["publication_year"],
-#             authors=sample_article["authors"],
-#             abstract=sample_article["abstract"],
-#
-# export_database(
-#     export_path="EXPORT_PATH",
-#     new_entries=multiple_article_metadataSchema(extracted_articles),
-# )
+        # export_database(
+        #     export_path="EXPORT_PATH",
+        #     new_entries=multiple_article_metadataSchema(extracted_articles),
+        # )
 
 
 asyncio.run(main())

@@ -13,7 +13,7 @@ class Base(DeclarativeBase):
 class article_metadataORM(Base):
     __tablename__ = "article_metadata"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
     doi: Mapped[str] = mapped_column(String(255), nullable=True)
     title: Mapped[str] = mapped_column(String(500), nullable=True)
