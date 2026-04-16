@@ -60,14 +60,13 @@ from aiogram.types import Message
 
 from openalex_ids import OPENALEX_IDS
 from inverted_abstract_conversion import convert_inverted_abstract
-from orm.extracted_articlesORM import article_metadataORM
 from schema.extracted_articlesSchema import (
     article_metadataSchema,
     multiple_article_metadataSchema,
 )
-from crud.database_entry import get_article_metadata_repository
+from litreview_bot.crud.saved_article_repository import get_article_metadata_repository
 from db.export_database_2csv import export_database
-from orm.extracted_articlesORM import Base
+from orm.ORMclasses import Base
 from db.session import ENGINE, EXPORT_PATH
 
 # from db.session import DB_PATH, EXPORT_PATH
@@ -75,16 +74,16 @@ from db.session import ENGINE, EXPORT_PATH
 load_dotenv()  # Load the environment variables
 
 # # env variable - bot token is obtained from BOTFATHER #
-# TOKEN = getenv("BOT_TOKEN")
-# bot = Bot(token = TOKEN)
+bot_token = os.getenv("BOT_TOKEN", False)
+bot = Bot(token=str(bot_token))
 
-# dp = Dispatcher()
+dp = Dispatcher()
 
-# @dp.message(CommandStart())
-# async def command_start_handler(message: Message) -> None:
-#     await message.answer(
-#         f"Hi,this is your litreview bot"
-#     )
+
+@dp.message(CommandStart())
+async def command_start_handler(message: Message) -> None:
+    await message.answer(f"Hi,this is your litreview bot")
+
 
 # @dp.sendmessagepublication_year>0
 
@@ -123,7 +122,7 @@ async def main():
                                 item["abstract_inverted_index"]
                             )
                         else:
-                            article_metadata["abstract"] = "There is no abstract here"
+                            article_metadata["abstract"] = "No abstract"
 
                         extracted_articles.append(article_metadata)
 

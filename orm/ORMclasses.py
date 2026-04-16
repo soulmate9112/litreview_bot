@@ -10,8 +10,20 @@ class Base(DeclarativeBase):
     pass
 
 
-class article_metadataORM(Base):
-    __tablename__ = "article_metadata"
+class saved_article_metadataORM(Base):
+    __tablename__ = "saved_article_metadata"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    doi: Mapped[str] = mapped_column(String(255), nullable=True)
+    title: Mapped[str] = mapped_column(String(500), nullable=True)
+    publication_year: Mapped[int] = mapped_column(Integer, nullable=True)
+    authors: Mapped[str] = mapped_column(String(1000), nullable=True)
+    abstract: Mapped[str] = mapped_column(String(1000), nullable=True)
+
+
+class sent_article_metadataORM(Base):
+    __tablename__ = "sent_article_metadata"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 

@@ -2,21 +2,18 @@ import pandas as pd
 import sqlalchemy as sa
 import os
 from sqlalchemy.orm import Session
-from orm.extracted_articlesORM import article_metadataORM
-from schema.extracted_articlesSchema import (
-    multiple_article_metadataSchema,
-)
+from orm.ORMclasses import saved_article_metadataORM
 from db.session import ENGINE
 
 
 def export_database(export_path: str):
     with Session(bind=ENGINE) as session:
-        export_all_entries(session, article_metadataORM, export_path)
+        export_all_entries(session, saved_article_metadataORM, export_path)
 
 
 def export_all_entries(
     session: Session,
-    model_class: type[article_metadataORM],
+    model_class: type[saved_article_metadataORM],
     export_path: str,
 ):
     table_name = model_class.__tablename__

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from db.session import get_session
-from orm.extracted_articlesORM import article_metadataORM
+from orm.ORMclasses import saved_article_metadataORM
 from schema.extracted_articlesSchema import (
     article_metadataSchema,
     multiple_article_metadataSchema,
@@ -12,7 +12,7 @@ from schema.extracted_articlesSchema import (
 from typing import List, Optional
 
 
-class Article_metadata_repository:
+class Saved_article_repository:
     def __init__(self, session: Session) -> None:
         self._session = session
 
@@ -24,8 +24,8 @@ class Article_metadata_repository:
         # Проверяем, существует ли запись с таким DOI
         with self._session as session:
             existing = session.execute(
-                select(article_metadataORM).where(
-                    article_metadataORM.doi == article_metadata_source.doi
+                select(saved_article_metadataORM).where(
+                    saved_article_metadataORM.doi == article_metadata_source.doi
                 )
             ).first()
 
@@ -37,7 +37,7 @@ class Article_metadata_repository:
 
         # Создаем новую запись (исключаем id, если он есть)
         article_data = article_metadata_source.model_dump(exclude_none=True)
-        article_metadata_orm = article_metadataORM(**article_data)
+        article_metadata_orm = saved_article_metadataORM(**article_data)
 
         with self._session as session:
             session.add(article_metadata_orm)
@@ -54,10 +54,10 @@ class Article_metadata_repository:
         # Получаем все существующие DOI
         with self._session as session:
             existing_dois = set(
-                session.execute(select(article_metadataORM.doi)).scalars().all()
+                session.execute(select(saved_article_metadataORM.doi)).scalars().all()
             )
             existing_titles = set(
-                session.execute(select(article_metadataORM.title)).scalars().all()
+                session.execute(select(saved_article_metadataORM.title)).scalars().all()
             )
 
         # Фильтруем новые статьи (проверка на дубликаты с БД)
@@ -67,7 +67,7 @@ class Article_metadata_repository:
                 article.title not in existing_titles
             ):
                 article_data = article.model_dump(exclude_none=True)
-                temp_articles.append(article_metadataORM(**article_data))
+                temp_articles.append(saved_article_metadataORM(**article_data))
 
         # Фильтруем дубликаты внутри самой пачки новых статей
         seen_dois = set()
@@ -113,7 +113,7 @@ class Article_metadata_repository:
     def get_entry(self, id: int) -> Optional[article_metadataSchema]:
         """Получает одну запись по ID."""
         with self._session as session:
-            article_metadata_orm = session.get(article_metadataORM, id)
+            article_metadata_orm = session.get(saved_article_metadataORM, id)
 
             if article_metadata_orm is None:
                 return None
@@ -125,7 +125,7 @@ class Article_metadata_repository:
     ) -> List[article_metadataSchema]:
         """Получает несколько записей с пагинацией."""
         with self._session as session:
-            query = select(article_metadataORM).offset(skip).limit(limit)
+            query = select(saved_article_metadataORM).offset(skip).limit(limit)
             results = session.execute(query).scalars().all()
 
             return [
@@ -133,5 +133,5 @@ class Article_metadata_repository:
             ]
 
 
-def get_article_metadata_repository() -> Article_metadata_repository:
-    return Article_metadata_repository(get_session())
+def get_article_metadata_repository() -> Saved_article_repository:
+    return Saved_article_repository(get_session())
