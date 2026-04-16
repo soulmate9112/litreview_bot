@@ -56,30 +56,56 @@ class Article_metadata_repository:
             existing_dois = set(
                 session.execute(select(article_metadataORM.doi)).scalars().all()
             )
+            existing_titles = set(
+                session.execute(select(article_metadataORM.title)).scalars().all()
+            )
 
-        # Фильтруем новые статьи
-        new_articles = []
+        # Фильтруем новые статьи (проверка на дубликаты с БД)
+        temp_articles = []
         for article in article_metadata_list.root:
-            if article.doi not in existing_dois:
+            if (article.doi not in existing_dois) and (
+                article.title not in existing_titles
+            ):
                 article_data = article.model_dump(exclude_none=True)
-                new_articles.append(article_metadataORM(**article_data))
+                temp_articles.append(article_metadataORM(**article_data))
 
-        if not new_articles:
+        # Фильтруем дубликаты внутри самой пачки новых статей
+        seen_dois = set()
+        seen_titles = set()
+        filtered_articles = []
+
+        for orm_article in temp_articles:
+            # Пропускаем, если DOI или title уже встречались в этой пачке
+            if orm_article.doi in seen_dois or orm_article.title in seen_titles:
+                print(
+                    f"Skipping duplicate within batch: DOI={orm_article.doi}, Title={orm_article.title}"
+                )
+                continue
+
+            # Добавляем в отфильтрованный список
+            filtered_articles.append(orm_article)
+            if orm_article.doi:
+                seen_dois.add(orm_article.doi)
+            if orm_article.title:
+                seen_titles.add(orm_article.title)
+
+        if not filtered_articles:
             print("No new articles to insert")
             return multiple_article_metadataSchema(root=[])
 
         # Сохраняем новые статьи
         with self._session as session:
-            session.add_all(new_articles)
+            session.add_all(filtered_articles)
             session.commit()
 
             # Обновляем объекты, чтобы получить сгенерированные id
-            for article in new_articles:
+            for article in filtered_articles:
                 session.refresh(article)
 
         # Конвертируем обратно в Pydantic
         created_schemas = [
-            article_metadataSchema.model_validate(article) for article in new_articles
+            article_metadataSchema.model_validate(article)
+            for article in filtered_articles
         ]
 
         return multiple_article_metadataSchema(root=created_schemas)

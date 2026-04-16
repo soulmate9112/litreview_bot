@@ -68,7 +68,7 @@ from schema.extracted_articlesSchema import (
 from crud.database_entry import get_article_metadata_repository
 from db.export_database_2csv import export_database
 from orm.extracted_articlesORM import Base
-from db.session import ENGINE
+from db.session import ENGINE, EXPORT_PATH
 
 # from db.session import DB_PATH, EXPORT_PATH
 
@@ -139,10 +139,7 @@ async def main():
             multiple_article_metadataSchema(extracted_articles)
         )
 
-        # export_database(
-        #     export_path="EXPORT_PATH",
-        #     new_entries=multiple_article_metadataSchema(extracted_articles),
-        # )
+        export_database(export_path=EXPORT_PATH)
 
 
 asyncio.run(main())

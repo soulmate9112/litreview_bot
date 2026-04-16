@@ -16,6 +16,10 @@ wheels/
 ORCIDs.xlsx
 openalex_ids.py
 orcids_list.py
+
+#database and export data
+article_metadata.db
+article_metadata_all_entries.csv
  
 
 
