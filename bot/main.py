@@ -64,14 +64,22 @@ from schema.extracted_articlesSchema import (
     article_metadataSchema,
     multiple_article_metadataSchema,
 )
-from litreview_bot.crud.saved_article_repository import get_article_metadata_repository
+from crud.saved_article_repository import (
+    Saved_article_repository,
+    get_saved_article_repository,
+)
+from crud.sent_article_repository import (
+    Sent_article_repository,
+    get_sent_article_repository,
+)
+
 from db.export_database_2csv import export_database
 from orm.ORMclasses import Base
-from db.session import ENGINE, EXPORT_PATH
 
 # from db.session import DB_PATH, EXPORT_PATH
 
 load_dotenv()  # Load the environment variables
+
 
 # # env variable - bot token is obtained from BOTFATHER #
 bot_token = os.getenv("BOT_TOKEN", False)

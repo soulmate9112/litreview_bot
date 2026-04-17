@@ -1,8 +1,5 @@
-from pydantic import PositiveInt
-
-from sqlalchemy import Integer, String, Column, create_engine
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.decl_api import DeclarativeBase
 
 

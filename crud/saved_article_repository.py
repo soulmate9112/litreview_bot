@@ -1,13 +1,12 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from db.session import get_session
-from orm.ORMclasses import saved_articleORM
+from db.session import get_session_saved, get_session_sent, ENGINE_SAVED, ENGINE_SENT
+from orm.ORMclasses import saved_articleORM, sent_articleORM
 from schema.extracted_articlesSchema import (
     article_metadataSchema,
     multiple_article_metadataSchema,
 )
-
 
 from typing import List, Optional
 
@@ -110,6 +109,8 @@ class Saved_article_repository:
 
         return multiple_article_metadataSchema(root=created_schemas)
 
+        # Достаем из БД одну статью
+
     def get_entry(self, id: int) -> Optional[article_metadataSchema]:
         """Получает одну запись по ID."""
         with self._session as session:
@@ -119,6 +120,8 @@ class Saved_article_repository:
                 return None
 
             return article_metadataSchema.model_validate(article_metadata_orm)
+
+        # Достаем из БД несколько статей
 
     def get_multiple_entries(
         self, skip: int = 0, limit: int = 10
@@ -132,6 +135,20 @@ class Saved_article_repository:
                 article_metadataSchema.model_validate(article) for article in results
             ]
 
+    # Достаем из БД неотправленные статьи (отсутствующие в sent_articleORM) - макс. 20 статей
 
-def get_article_metadata_repository() -> Saved_article_repository:
-    return Saved_article_repository(get_session())
+    def get_unsent_articles(self, limit: int = 20):
+        with Session(bind=ENGINE_SENT) as session_sent:
+            dois_unsent = {doi for doi in (session_sent.query(sent_articleORM.doi))}
+
+        with self._session as session_saved:
+            select_unsent = select(saved_articleORM).where(
+                saved_articleORM.doi.not_in(list(dois_unsent))
+            )
+            unsent_articles = session_saved.execute(select_unsent).scalars().all()
+
+        return unsent_articles
+
+
+def get_saved_article_repository() -> Saved_article_repository:
+    return Saved_article_repository(get_session_saved())
