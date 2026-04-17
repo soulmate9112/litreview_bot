@@ -10,8 +10,8 @@ class Base(DeclarativeBase):
     pass
 
 
-class saved_article_metadataORM(Base):
-    __tablename__ = "saved_article_metadata"
+class saved_articleORM(Base):
+    __tablename__ = "saved_article"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
@@ -22,8 +22,8 @@ class saved_article_metadataORM(Base):
     abstract: Mapped[str] = mapped_column(String(1000), nullable=True)
 
 
-class sent_article_metadataORM(Base):
-    __tablename__ = "sent_article_metadata"
+class sent_articleORM(Base):
+    __tablename__ = "sent_article"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
