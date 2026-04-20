@@ -76,7 +76,7 @@ from crud.sent_article_repository import (
 from db.export_database_2csv import export_database
 from orm.ORMclasses import Base
 
-# from db.session import DB_PATH, EXPORT_PATH
+from db.session import DB_PATH, EXPORT_PATH, ENGINE_SAVED, ENGINE_SENT
 
 load_dotenv()  # Load the environment variables
 
@@ -139,9 +139,9 @@ async def main():
 
                         # extracted_articles contains dictionaries with the article metadata
 
-        Base.metadata.create_all(bind=ENGINE)
+        Base.metadata.create_all(bind=ENGINE_SAVED)
 
-        article_repository = get_article_metadata_repository()
+        article_repository = get_saved_article_repository()
         article_repository.create_multiple_entries(
             multiple_article_metadataSchema(extracted_articles)
         )

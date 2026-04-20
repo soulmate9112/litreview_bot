@@ -1,0 +1,18 @@
+[project]
+name = "litreview_bot"
+version = "0.1.0"
+description = "A Telegram bot for sending a selection of scientific articles"
+authors = [ {name: "Simon", email = "simonb683@gmail.com"}
+
+]
+
+requires-python = ">=3.11"
+dependencies = [
+  "aiogram~=3.10",
+  "aiohttp",
+  "asyncio"
+  "pydantic",
+  "sqlalchemy",
+  "loguru" 
+  "pandas",
+]
